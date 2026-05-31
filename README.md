@@ -110,7 +110,7 @@ python -m rag_pipeline.app -q "What is the employee ID in the document?"
 Ready! Type your questions below (type 'quit' to exit)
 
 You: What is the employee ID mentioned in the document?
-Assistant: The employee ID mentioned in the document is G01355942.
+Assistant: The employee ID mentioned in the document is xx12345.
 Source   : data/relieving_letter.pdf
 
 You: When was the letter issued?
