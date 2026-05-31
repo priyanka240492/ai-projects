@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "local-rag-langchain"
+version = "0.1.0"
+description = "Local RAG pipeline using LangChain, ChromaDB and Claude"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Lakshmi Priyanka Kaduluri", email = "" }
+]
+keywords = ["rag", "langchain", "chromadb", "llm", "anthropic", "genai"]
+
+dependencies = [
+    "langchain==0.2.16",
+    "langchain-community==0.2.16",
+    "langchain-chroma==0.1.4",
+    "langchain-huggingface==0.0.3",
+    "langchain-anthropic",
+    "chromadb",
+    "pypdf==4.3.1",
+    "python-dotenv",
+    "sentence-transformers",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ragas",
+    "datasets",
+]
+
+[project.scripts]
+rag-ingest = "rag_pipeline.ingest:main"
+rag-chat   = "rag_pipeline.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
