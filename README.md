@@ -48,8 +48,8 @@ local-rag-langchain/
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/priyanka240492/local-rag-langchain.git
-cd local-rag-langchain
+git clone https://github.com/priyanka240492/ai-projects.git
+cd ai-projects
 ```
 
 ### 2. Create virtual environment (Python 3.11 required)
