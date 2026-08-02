@@ -17,6 +17,7 @@ No hallucinations. No cloud vector store. No OpenAI dependency.
 | Retrieval | MMR (Maximal Marginal Relevance) | Avoids returning duplicate chunks |
 | LLM | Claude Haiku via Anthropic API | Fast, accurate, grounded responses |
 | Document Loading | LangChain PyPDFLoader | Handles multi-page PDFs |
+| Web UI | Streamlit | File upload, chat history, source citations |
 
 ---
 
@@ -27,18 +28,19 @@ local-rag-langchain/
 ├── src/
 │   └── rag_pipeline/
 │       ├── __init__.py
-│       ├── config.py        # all settings in one place
-│       ├── ingest.py        # load → chunk → embed → store
-│       ├── rag.py           # retriever + LLM chain (LCEL)
-│       └── app.py           # interactive CLI entrypoint
+│       ├── config.py          # all settings in one place
+│       ├── ingest.py          # load → chunk → embed → store
+│       ├── rag.py             # retriever + LLM chain (LCEL)
+│       ├── app.py             # interactive CLI entrypoint
+│       └── streamlit_app.py  # web UI entrypoint
 ├── tests/
-│   └── __init__.py          # placeholder for Phase 2 RAGAS evals
-├── data/                    # drop your PDFs here (gitignored)
-├── vectorstore/             # ChromaDB persists here (gitignored)
-├── .env.example             # API key template (committed)
+│   └── __init__.py            # placeholder for Phase 2 RAGAS evals
+├── data/                      # drop your PDFs here (gitignored)
+├── vectorstore/               # ChromaDB persists here (gitignored)
+├── .env.example               # API key template (committed)
 ├── .gitignore
-├── Makefile                 # shortcuts: make ingest, make chat
-├── pyproject.toml           # modern Python packaging
+├── Makefile                   # shortcuts: make ingest, make chat, make ui
+├── pyproject.toml             # modern Python packaging
 └── README.md
 ```
 
@@ -76,50 +78,78 @@ cp .env.example .env
 ```
 Get your key at: https://console.anthropic.com
 
-### 5. Add your documents
-```bash
-cp your_document.pdf data/
-```
-Supports PDF and TXT files. Must be digitally created (not scanned).
+---
 
-### 6. Ingest documents
+## Usage — two ways to run
+
+### Option A — Streamlit web UI (recommended)
+
 ```bash
+make ui
+# or: streamlit run src/rag_pipeline/streamlit_app.py
+```
+
+Opens at **http://localhost:8501** in your browser automatically.
+
+**In the UI:**
+1. Click **Browse files** in the sidebar → select your PDF or TXT file
+2. Click **Ingest documents** → wait for the green **● Ready to query** status
+3. Type your question in the chat box at the bottom
+4. Answer appears with source citation underneath
+
+To stop the server: press **Ctrl + C** in the terminal.
+
+> **First run tip:** Streamlit will ask for your email on first launch — just press Enter to skip.
+
+---
+
+### Option B — CLI (terminal)
+
+```bash
+# Step 1: add documents to data/ folder
+cp your_document.pdf data/
+
+# Step 2: ingest (one-time per document set)
 make ingest
 # or: python -m rag_pipeline.ingest
-```
-Downloads the HuggingFace embedding model (~90MB) on first run.
 
-### 7. Start querying
-```bash
+# Step 3: start querying
 make chat
 # or: python -m rag_pipeline.app
 ```
 
-### Single question mode
+**Single question mode:**
 ```bash
 python -m rag_pipeline.app -q "What is the employee ID in the document?"
 ```
 
 ---
 
-## Example
+## Example (Streamlit UI)
 
 ```
-[rag] Loading retriever and building chain...
+Upload: relieving_letter.pdf  →  Ingested 4 chunks ✓
 
-Ready! Type your questions below (type 'quit' to exit)
-
-You: What is the employee ID mentioned in the document?
+You:       What is the employee ID mentioned in the document?
 Assistant: The employee ID mentioned in the document is xx12345.
-Source   : data/relieving_letter.pdf
+           📄 Source: data/relieving_letter.pdf
 
-You: When was the letter issued?
+You:       When was the letter issued?
 Assistant: The letter was issued on 04 August 2022.
-Source   : data/relieving_letter.pdf
-
-You: quit
-Goodbye!
+           📄 Source: data/relieving_letter.pdf
 ```
+
+---
+
+## Makefile shortcuts
+
+| Command | What it does |
+|---|---|
+| `make install` | Install all dependencies |
+| `make ingest` | Load and embed documents from `data/` |
+| `make chat` | Start interactive CLI |
+| `make ui` | Launch Streamlit web UI at localhost:8501 |
+| `make clean` | Remove vectorstore and pycache |
 
 ---
 
@@ -142,9 +172,10 @@ the embedding model or LLM requires editing one file, not hunting across the cod
 The chain is built with the `|` pipe operator. Swapping any component — e.g. replacing
 Claude with Ollama, or ChromaDB with pgvector — is a one-line change, not a rewrite.
 
-### Why `pyproject.toml` over `requirements.txt`?
-`pyproject.toml` is the modern Python packaging standard (PEP 517/518). It defines
-dependencies, CLI entrypoints (`rag-ingest`, `rag-chat`), and dev extras in one place.
+### Why Streamlit over Gradio?
+Streamlit gives finer control over layout, session state, and sidebar — making it easier
+to build a proper multi-step UI (upload → ingest → chat) compared to Gradio's
+single-function model.
 
 ---
 
@@ -177,35 +208,32 @@ llm = Ollama(model="llama3.2", temperature=0)
 | ChromaDB version conflict | `langchain-chroma 0.1.4` excludes `chromadb==0.5.5` | Unpin chromadb version |
 | `insufficient_quota` | OpenAI free tier exhausted | Use HuggingFace embeddings (free) |
 | `404 model not found` | Wrong Claude model string | Use `claude-haiku-4-5-20251001` |
-| `ModuleNotFoundError: No module named 'setuptools.backends'` | `setuptools.backends.legacy:build` requires setuptools ≥ 68 which wasn't in the venv | Change build-backend in `pyproject.toml` to `setuptools.build_meta` and run `pip install --upgrade setuptools` |
+| `ModuleNotFoundError: setuptools.backends` | Old setuptools version in venv | Change build-backend to `setuptools.build_meta` and run `pip install --upgrade setuptools` |
+| `ModuleNotFoundError: rag_pipeline` | Package not installed in editable mode | Run `pip install -e ".[dev]"` before `streamlit run` |
 
 ---
 
 ## `pyproject.toml` note — build backend
 
-If you see `ModuleNotFoundError: No module named 'setuptools.backends'` when running
-`pip install -e ".[dev]"`, your setuptools version is too old. Two options:
+If you see `ModuleNotFoundError: No module named 'setuptools.backends'`:
 
-**Option A — upgrade setuptools (recommended):**
 ```bash
 pip install --upgrade setuptools
 pip install -e ".[dev]"
 ```
 
-**Option B — use the stable build backend in `pyproject.toml`:**
+Or update `pyproject.toml`:
 ```toml
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"   # ← use this, not setuptools.backends.legacy:build
+build-backend = "setuptools.build_meta"   # ← stable, universally supported
 ```
-`setuptools.build_meta` is the stable, universally supported backend.
-`setuptools.backends.legacy:build` is only available in very recent setuptools versions.
 
 ---
 
 ## Roadmap
 
-- [x] Phase 1 — Basic RAG pipeline (this repo)
+- [x] Phase 1 — Basic RAG pipeline with Streamlit UI
 - [ ] Phase 2 — Advanced retrieval: reranking, hybrid search, HyDE
 - [ ] Phase 3 — RAGAS eval in GitHub Actions CI/CD quality gate
 - [ ] Phase 4 — Fine-tuned domain embeddings

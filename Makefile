@@ -17,6 +17,9 @@ ingest:
 chat:
 	python -m rag_pipeline.app
 
+ui:
+	streamlit run src/rag_pipeline/streamlit_app.py
+
 clean:
 	rm -rf vectorstore/
 	find . -type d -name __pycache__ -exec rm -rf {} +
