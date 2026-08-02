@@ -177,6 +177,29 @@ llm = Ollama(model="llama3.2", temperature=0)
 | ChromaDB version conflict | `langchain-chroma 0.1.4` excludes `chromadb==0.5.5` | Unpin chromadb version |
 | `insufficient_quota` | OpenAI free tier exhausted | Use HuggingFace embeddings (free) |
 | `404 model not found` | Wrong Claude model string | Use `claude-haiku-4-5-20251001` |
+| `ModuleNotFoundError: No module named 'setuptools.backends'` | `setuptools.backends.legacy:build` requires setuptools ≥ 68 which wasn't in the venv | Change build-backend in `pyproject.toml` to `setuptools.build_meta` and run `pip install --upgrade setuptools` |
+
+---
+
+## `pyproject.toml` note — build backend
+
+If you see `ModuleNotFoundError: No module named 'setuptools.backends'` when running
+`pip install -e ".[dev]"`, your setuptools version is too old. Two options:
+
+**Option A — upgrade setuptools (recommended):**
+```bash
+pip install --upgrade setuptools
+pip install -e ".[dev]"
+```
+
+**Option B — use the stable build backend in `pyproject.toml`:**
+```toml
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"   # ← use this, not setuptools.backends.legacy:build
+```
+`setuptools.build_meta` is the stable, universally supported backend.
+`setuptools.backends.legacy:build` is only available in very recent setuptools versions.
 
 ---
 
@@ -192,6 +215,6 @@ llm = Ollama(model="llama3.2", temperature=0)
 
 ## Author
 
-**Lakshmi Priyanka Kaduluri**  
-Data Engineer | AWS | GenAI  
+**Lakshmi Priyanka Kaduluri**
+Data Engineer | AWS | GenAI
 [GitHub](https://github.com/priyanka240492) · [LinkedIn](https://www.linkedin.com/in/lakshmipriyanka-k/)

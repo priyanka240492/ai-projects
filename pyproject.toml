@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "local-rag-langchain"
@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-    { name = "Lakshmi Priyanka Kaduluri", email = "" }
+    { name = "Lakshmi Priyanka Kaduluri" }
 ]
 keywords = ["rag", "langchain", "chromadb", "llm", "anthropic", "genai"]
 
