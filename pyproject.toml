@@ -23,6 +23,7 @@ dependencies = [
     "chromadb",
     "pypdf==4.3.1",
     "python-dotenv",
+    "pymupdf",
     "streamlit",
     "sentence-transformers",
 ]

@@ -8,7 +8,7 @@ Usage:
     rag-ingest                           # via installed CLI (pyproject.toml)
 """
 from langchain_community.document_loaders import (
-    PyPDFLoader,
+    PyMuPDFLoader, #PyMuPDFLoader loads all file content including headers, footers, and metadata. It is more comprehensive than PyPDFLoader.
     TextLoader,
     DirectoryLoader,
 )
@@ -34,7 +34,7 @@ def load_documents() -> list:
     docs.extend(
         DirectoryLoader(
             str(DATA_DIR), glob="**/*.pdf",
-            loader_cls=PyPDFLoader, show_progress=True
+            loader_cls=PyMuPDFLoader, show_progress=True
         ).load()
     )
     docs.extend(

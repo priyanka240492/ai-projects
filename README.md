@@ -16,7 +16,7 @@ No hallucinations. No cloud vector store. No OpenAI dependency.
 | Vector Store | ChromaDB (local, persistent) | Zero infra, runs on your machine |
 | Retrieval | MMR (Maximal Marginal Relevance) | Avoids returning duplicate chunks |
 | LLM | Claude Haiku via Anthropic API | Fast, accurate, grounded responses |
-| Document Loading | LangChain PyPDFLoader | Handles multi-page PDFs |
+| Document Loading | LangChain PyMuPDFLoader | Full page extraction including headers, footers and form fields |
 | Web UI | Streamlit | File upload, chat history, source citations |
 
 ---
@@ -199,6 +199,19 @@ llm = Ollama(model="llama3.2", temperature=0)
 
 ---
 
+## PDF Loader — why PyMuPDFLoader over PyPDFLoader
+
+During development, `PyPDFLoader` was the initial choice but produced incomplete extractions:
+
+| Loader | Chunks extracted | Header/footer | Tables | Verdict |
+|---|---|---|---|---|
+| `PyPDFLoader` | 10 | ❌ Missed | ❌ Basic | Initial choice — misses corner text |
+| `PyMuPDFLoader` | 16 | ✅ Extracted | ✅ Better | **Production choice** — 60% more content |
+
+Real example: `Expires 04/30/2026` sat in the top-right corner of a disability form. `PyPDFLoader` silently missed it. `PyMuPDFLoader` extracted it correctly. Always validate extraction with a preview script before ingesting.
+
+---
+
 ## Debugging lessons learned
 
 | Problem | Root cause | Fix |
@@ -210,6 +223,9 @@ llm = Ollama(model="llama3.2", temperature=0)
 | `404 model not found` | Wrong Claude model string | Use `claude-haiku-4-5-20251001` |
 | `ModuleNotFoundError: setuptools.backends` | Old setuptools version in venv | Change build-backend to `setuptools.build_meta` and run `pip install --upgrade setuptools` |
 | `ModuleNotFoundError: rag_pipeline` | Package not installed in editable mode | Run `pip install -e ".[dev]"` before `streamlit run` |
+| RAG returning wrong/missing answers | PDF header/footer content not extracted by `PyPDFLoader` | Switch to `PyMuPDFLoader` — extracts full page layout including margins, headers and footers |
+| Chunk count lower than expected | `PyPDFLoader` misses corner text blocks and structured regions | `PyMuPDFLoader` increased chunks from 10 → 16 on same document (60% more content extracted) |
+| `what is the expires date?` returned "I don't know" | Expires field sat in top-right header corner — invisible to `PyPDFLoader` | `PyMuPDFLoader` correctly extracted "Expires 04/30/2026" from header region |
 
 ---
 
