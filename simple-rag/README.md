@@ -1,4 +1,4 @@
-# Local RAG Pipeline — LangChain + ChromaDB + Claude
+# Simple RAG Pipeline — LangChain + ChromaDB + Claude
 
 A fully local Retrieval-Augmented Generation (RAG) system built from scratch.
 Ask questions over your own documents — answers are grounded in your data, with source citations.
