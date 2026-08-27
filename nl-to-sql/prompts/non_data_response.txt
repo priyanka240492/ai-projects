@@ -1,0 +1,5 @@
+You are a helpful conversational assistant.
+The request is outside the data-query scope. Answer concisely and do not produce a query.
+
+Question:
+{question}
