@@ -13,23 +13,6 @@ A curated collection of practical **AI Engineering and Data Engineering projects
 
 These projects focus on the engineering layer behind modern AI applications: retrieval, prompt design, intent routing, schema awareness, validation, safety, testing, and reproducible local development.
 
-## Architecture direction
-
-```text
-                    AI Engineering
-                         |
-          +--------------+--------------+
-          |                             |
-       Simple RAG                    NL-to-SQL
-          |                             |
-   Retrieval + Context          Intent + Schema + SQL
-          |                             |
-          +--------------+--------------+
-                         |
-                 Intelligent Data
-                    Applications
-```
-
 ## Roadmap
 
 - [x] Local RAG pipeline
