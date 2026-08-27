@@ -1,0 +1,28 @@
+[build-system]
+requires = ['setuptools>=68', 'wheel']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'simple-rag'
+version = '0.1.0'
+description = 'Local RAG pipeline using LangChain, ChromaDB and Claude'
+requires-python = '>=3.11'
+
+dependencies = [
+  'langchain==0.2.16',
+  'langchain-community==0.2.16',
+  'langchain-chroma==0.1.4',
+  'langchain-huggingface==0.0.3',
+  'langchain-anthropic',
+  'chromadb',
+  'python-dotenv',
+  'pymupdf',
+  'streamlit',
+  'sentence-transformers',
+]
+
+[project.optional-dependencies]
+dev = ['pytest>=8.0', 'ragas', 'datasets']
+
+[tool.setuptools.packages.find]
+where = ['src']
